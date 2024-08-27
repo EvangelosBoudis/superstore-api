@@ -45,7 +45,7 @@
 - Benchmark - Stress test
 - Kubernetes desktop
 
-## Use cases
+### Use cases
 
 - Ένα scheduled background service θα πρέπει να εκτελείται κάθε μέρα ούτως ώστε να γίνει το scrapping στα site των
   διαθέσιμων merchant.
@@ -68,4 +68,38 @@
   layer. Το expiration timestamp κάθε entry θα μπορούσε να είναι ακόμα και μετά από 24 ώρες διότι όπως αναφέραμε το
   scraping και κατεπέκταση το update της βάσης θα γίνεται 1 φορά τη μέρα.
 - Η απόφαση του scraping schedule θα λαμβάνεται με βάση κάποια συγκεκριμένα κριτήρια (global και ανά merchant) όπως
-  καθημερινό timestamp στο οποίο ο εκάστοτε merchant πραγματοποιεί ενημέρωση των δεδομένων στο site του. 
+  καθημερινό timestamp στο οποίο ο εκάστοτε merchant πραγματοποιεί ενημέρωση των δεδομένων στο site του.
+
+### Authentication
+
+- Το authentication της εφαρμογής θα είναι stateless με JWT. Το API θα επιστρέφει το token ως HTTP Header ή ως cookie
+  entry παραμετρικά. Παράδειγμα request:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "X-Token-Store: cookie" -d '{
+  "username": "john.doe@gmail.com",
+  "password": "id83ndK9$*"
+}' https://api.superstore.com/auth/sign-in
+```
+
+- Το payload του JWT θα διαθέτει όλα τα απαραίτητα permissions του εκάστοτε χρήστη με βάση το account type που διαθέτει
+  standard/premium. Τα features που θα διαθέτουν standard και premium accounts θα αναλυθούν παρακάτω.
+
+- Τα rotation tokens μπορούν να βρίσκονται κανονικά στον Database Server, διότι σε κάθε token rotation θα χρειαστεί να
+  κάνουμε lookup στη βάση για να αναζητήσουμε τα current στοιχεία του χρήστη. Το access token μπορεί να γίνεται expired
+  ημερίσια ενώ το refresh token ανά μήνα. Το table των rotation tokens δε θα διαθέτει indexes διότι το update frequency
+  των records θα είναι αρκετά μεγάλο. Κάθε τέλος ημέρας θα γίνονται clear όλα τα expired tokens μέσω background service.
+
+- Το API μπορεί μελλοντικά να παρέχεται και ως standard alone υπηρεσία οπότε θα σχεδιαστεί από την αρχή ως microservice.
+  Για αυτό το λόγω πρέπει να καλύψουμε rate limits αλλά και endpoint restrictions με βάση το plan του κάθε
+  partner-πελάτη. Το server to server authentication θα πραγματοποιηθεί μέσω private key στα Headers όπως ακριβώς κάνει
+  η Stripe.
+
+### Standard Features
+
+- Έξυπνη αναζήτηση προιόντων με βάση το όνομα και τη κατηγορία του προιόντως
+- Αναζήτηση με φίλτρα (menu popup με φίλτρα σα το Youtube), το φίλτρο της ημερομινίας θα πρέπει να είναι διαθέσιμο
+  αποκλειστικά στους premium χρήστες.
+- Σε κάθε row πρέπει να εμφανίζεται και η απόσταση από το πλησηέστερο κατάστημα walking/car, στη περίπτωση που με τα
+  πόδια είναι περισσότερο από 5 - 10 λεπτά τότε θα εμφανίζεται το αυτοκίντητο. Το αυγκερκιμένο option μπορεί να ρεθεί
+  και ως preference στα settings του χρήστη (show only with car etc.)   
