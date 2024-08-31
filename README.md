@@ -114,6 +114,9 @@ curl -X POST -H "Content-Type: application/json" -H "X-Token-Store: cookie" -d '
   partner-πελάτη. Το server to server authentication θα πραγματοποιηθεί μέσω private key στα Headers όπως ακριβώς κάνει
   η Stripe.
 
+- Κάθε φορά που το refresh token θα γίνεται expired ο χρήστης αμέσως μετά τη εισαγωγή username password θα περνάει από challenge μέσω authenticator app optionally εφόσον έχει ενεργοποιήσει τη δυνατότητα από τα settings του, διαφορετικά θα του έρχεται one time password μέσω email channel. Προτιμούνται τα authenticator apps έναντι των SMS λόγω κόστους.
+- Το JWT θα ζει στο keystore του OS μετά από κάθε επιτυχής σύνδεση, optionally (πάλι μέσω ενεργοποίησης από τα settings) η εφαρμογή μπορεί α ζητάει βιομετρικά στοιχεία σε κάθε login.
+
 ### Features
 
 - Έξυπνη αναζήτηση προιόντων με βάση όνομα, κατηγορία προιόντως, merchant etc. Η έξυπνη αναζήτηση θα παρέχετε και μέσω
